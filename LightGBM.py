@@ -21,3 +21,40 @@ titanic['embarked'] = pd.Categorical(titanic['embarked']).codes
 X = titanic.drop('survived', axis=1)
 y = titanic['survived']
 
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+class_dict = {
+"Third": 3,
+"First": 1,
+"Second": 2
+}
+who_dict = {
+"child": 0,
+"woman": 1,
+"man": 2
+}
+X_train['class'] = X_train['class'].apply(lambda x: class_dict[x])
+X_train['who'] = X_train['who'].apply(lambda x: who_dict[x])
+X_test['class'] = X_test['class'].apply(lambda x: class_dict[x])
+X_test['who'] = X_test['who'].apply(lambda x: who_dict[x])
+
+params = {
+'objective': 'binary',
+'boosting_type': 'gbdt',
+'num_leaves': 31,
+'learning_rate': 0.05,
+'feature_fraction': 0.9
+}
+clf = lgb.LGBMClassifier(**params)
+clf.fit(X_train, y_train)
+
+predictions = clf.predict(X_test)
+print(classification_report(y_test, predictions))
+
+model = lgb.LGBMClassifier(num_leaves=31, min_data_in_leaf=20, max_depth=5)
+model.fit(X_train, y_train)
+
+predictions = model.predict(X_test)
+print(classification_report(y_test, predictions))
+
